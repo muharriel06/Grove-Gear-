@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grove Gear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        :root { --emerald-500: #10b981; --emerald-600: #059669; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; scroll-behavior: smooth; }
+        .emerald-gradient { background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-600) 100%); }
+        .tab-active { background-color: var(--emerald-600) !important; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .card-entry { transition: transform 0.2s ease; }
+        .card-entry:hover { transform: translateY(-2px); }
+        /* Skeleton loading sederhana */
+        .loading-shimmer { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+<section id="authSection" class="min-h-[80vh] flex items-center justify-center">
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl max-w-md w-full border border-emerald-100 text-center">
+        <img src="GROVE_GEAR_LOGO.png" alt="Logo" class="w-24 h-24 mx-auto rounded-3xl mb-6 border-2 border-emerald-500 object-cover">
+        <h2 class="text-2xl font-extrabold text-emerald-900 mb-6">Grove Gear</h2>
+        
+        <div id="loginBox" class="space-y-4">
+            <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <button id="btnLogin" class="w-full emerald-gradient text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all">Masuk</button>
+            <p class="text-xs text-slate-500 mt-4">Belum punya akun? <span class="toggleAuth text-emerald-600 font-bold cursor-pointer">Daftar Sekarang</span></p>
+        </div>
+
+        <div id="registerBox" class="space-y-4 hidden">
+            <input type="text" id="regName" placeholder="Nama Lengkap" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <input type="email" id="regEmail" placeholder="Email" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <input type="password" id="regPassword" placeholder="Buat Password" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+            <button id="btnRegister" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all">Buat Akun</button>
+            <p class="text-xs text-slate-500 mt-4">Sudah punya akun? <span class="toggleAuth text-emerald-600 font-bold cursor-pointer">Masuk</span></p>
+        </div>
+    </div>
+</section>
+
+<main id="mainDashboard" class="max-w-7xl mx-auto hidden">
+    <header class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm mb-8 border border-slate-100 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 emerald-gradient rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-inner">GG</div>
+            <div>
+                <h1 id="userWelcome" class="text-xl font-extrabold text-emerald-900 uppercase tracking-tighter">USER</h1>
+                <p id="roleBadge" class="text-[10px] font-bold text-emerald-600 tracking-widest uppercase bg-emerald-50 px-2 py-0.5 rounded-md inline-block">ROLE</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="masterResetBtn" class="hidden text-rose-600 font-bold text-[10px] bg-rose-50 px-4 py-2 rounded-xl border border-rose-100 hover:bg-rose-100 transition-colors">RESET SEMUA DATA</button>
+            <button id="btnLogout" class="text-slate-500 font-bold text-sm bg-slate-100 px-6 py-2 rounded-xl hover:bg-slate-200 transition-colors">Keluar</button>
+        </div>
+    </header>
+
+    <div id="karyawanPage" class="hidden">
+        <nav class="flex bg-white p-2 rounded-2xl shadow-sm mb-8 max-w-2xl mx-auto border border-slate-100 overflow-x-auto no-scrollbar">
+            <button data-tab="dashboard" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold tab-active">Dashboard</button>
+            <button data-tab="leaderboard" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Leaderboard</button>
+            <button data-tab="input" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Input</button>
+            <button data-tab="surat" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Surat</button>
+            <button data-tab="history" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Riwayat</button>
+        </nav>
+        
+        <div id="tab-dashboard" class="content-tab space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-bold text-emerald-400 uppercase">Estimasi Gaji (Maks 12j)</p>
+                        <h2 id="mySalary" class="text-4xl font-extrabold">Rp 0</h2>
+                    </div>
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                </div>
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-emerald-50">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Invoice Saya</p>
+                    <h2 id="myTotalInv" class="text-3xl font-extrabold text-emerald-600">Rp 0</h2>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-leaderboard" class="content-tab hidden max-w-md mx-auto">
+            <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100">
+                <h3 class="font-bold text-center text-slate-800 mb-6 flex items-center justify-center gap-2">
+                    <span>🏆</span> 10 Besar (>300k)
+                </h3>
+                <div id="leaderboardList" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <div id="tab-input" class="content-tab hidden max-w-2xl mx-auto">
+             <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+                <h3 class="text-xl font-extrabold mb-6">Laporan Harian</h3>
+                <form id="formAbsen" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 ml-2">TANGGAL</label>
+                        <input type="date" id="tabTgl" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 ml-2">JAM MASUK</label>
+                            <input type="time" id="tabOn" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 ml-2">JAM KELUAR</label>
+                            <input type="time" id="tabOff" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 ml-2">TOTAL INVOICE (RP)</label>
+                        <input type="number" id="tabInv" placeholder="Contoh: 500000" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
+                    </div>
+                    <button type="submit" class="w-full py-5 emerald-gradient text-white rounded-3xl font-black shadow-lg hover:opacity-90 active:scale-[0.98] transition-all mt-4">KIRIM LAPORAN</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tab-surat" class="content-tab hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-white p-8 rounded-[3rem] border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-6">Pengajuan Izin / Resign</h3>
+                <div class="space-y-4">
+                    <select id="srTipe" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none">
+                        <option value="Izin">Izin / Cuti</option>
+                        <option value="Resign">Resign</option>
+                    </select>
+                    <textarea id="srAlasan" placeholder="Tulis alasan dengan detail..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-200" rows="3"></textarea>
+                    <button id="btnKirimSurat" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-colors">Kirim Pengajuan</button>
+                </div>
+            </div>
+            <div id="mySuratList" class="space-y-3"></div>
+        </div>
+
+        <div id="tab-history" class="content-tab hidden max-w-2xl mx-auto">
+            <h3 class="font-bold text-slate-800 mb-4 px-4">Riwayat Laporan Saya</h3>
+            <div id="myInvoiceList" class="grid grid-cols-1 gap-3"></div>
+        </div>
+    </div>
+
+    <div id="adminPage" class="hidden space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div class="bg-white p-6 rounded-[2rem] border-b-4 border-emerald-500 shadow-sm">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Pemasukan</p>
+                <h2 id="cashIn" class="text-2xl font-bold text-emerald-600">Rp 0</h2>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border-b-4 border-rose-500 shadow-sm">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Gaji (Maks 12j)</p>
+                <h2 id="cashOut" class="text-2xl font-bold text-rose-600">Rp 0</h2>
+            </div>
+            <div class="emerald-gradient p-6 rounded-[2rem] text-white shadow-lg">
+                <p class="text-[10px] font-bold opacity-80 uppercase">Net Profit</p>
+                <h2 id="netProfit" class="text-2xl font-bold">Rp 0</h2>
+            </div>
+        </div>
+
+        <nav class="flex bg-white p-2 rounded-2xl shadow-sm max-w-md mx-auto border border-slate-100">
+            <button data-admintab="admin-grafik" class="admin-nav-tab flex-1 py-2 rounded-xl text-xs font-bold tab-active">Grafik</button>
+            <button data-admintab="admin-transaksi" class="admin-nav-tab flex-1 py-2 rounded-xl text-xs font-bold text-slate-500">Transaksi</button>
+            <button data-admintab="admin-surat" class="admin-nav-tab flex-1 py-2 rounded-xl text-xs font-bold text-slate-500">Surat</button>
+        </nav>
+
+        <div id="tab-admin-grafik" class="admin-content-tab">
+            <div class="bg-white p-6 rounded-[2.5rem] border border-slate-50 shadow-inner">
+                <canvas id="financeChart" height="120"></canvas>
+            </div>
+        </div>
+
+        <div id="tab-admin-transaksi" class="admin-content-tab hidden">
+            <div id="adminInvoiceList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="tab-admin-surat" class="admin-content-tab hidden">
+            <div id="adminSuratInbox" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </div>
+</main>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDZmwR3HkZon33osEzcCeMlBgyeWnTQJcY",
+        authDomain: "grove-gear-finance.firebaseapp.com",
+        databaseURL: "https://grove-gear-finance-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "grove-gear-finance",
+        storageBucket: "grove-gear-finance.firebasestorage.app",
+        messagingSenderId: "543975396626",
+        appId: "1:543975396626:web:09c3e80db7b0a1ba878fcb"
+    };
+
+    // --- State Management ---
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    let currentUser = JSON.parse(localStorage.getItem('gg_user'));
+    let myChart = null;
+    const GAJI_PER_JAM = 2000;
+    const MAX_JAM = 12;
+
+    // --- Helpers ---
+    const $ = (id) => document.getElementById(id);
+    const formatIDR = (num) => "Rp " + Math.floor(num).toLocaleString('id-ID');
+
+    // --- UI Logic ---
+    function switchTab(type, targetId) {
+        const tabs = document.querySelectorAll(`.${type}-nav-tab, .nav-tab`);
+        const contents = document.querySelectorAll(`.${type}-content-tab, .content-tab`);
+        
+        tabs.forEach(t => t.classList.remove('tab-active', 'text-slate-500'));
+        contents.forEach(c => c.classList.add('hidden'));
+
+        const activeTab = Array.from(tabs).find(t => (t.dataset.tab || t.dataset.admintab) === targetId);
+        if(activeTab) activeTab.classList.add('tab-active');
+        $(`tab-${targetId}`).classList.remove('hidden');
+    }
+
+    // --- Auth Logic ---
+    async function login() {
+        const email = $('email').value.toLowerCase().trim();
+        const pass = $('password').value;
+        if(!email || !pass) return alert("Isi semua bidang!");
+        
+        const uid = btoa(email).replace(/=/g, "");
+        try {
+            const snap = await get(ref(db, `users/${uid}`));
+            if(!snap.exists()) return alert("Akun tidak ditemukan!");
+            
+            const userData = snap.val();
+            if(userData.password !== pass) return alert("Password salah!");
+
+            // Block Resigned
+            const suratSnap = await get(ref(db, 'surat'));
+            const resigns = suratSnap.val() || {};
+            const isBlocked = Object.values(resigns).some(s => s.userId === uid && s.tipe === 'Resign' && s.status === 'ACC');
+            if(isBlocked) return alert("Akses Ditolak: Akun dinonaktifkan.");
+
+            if(email.includes('admin')) userData.role = 'admin';
+            
+            currentUser = { ...userData, id: uid };
+            localStorage.setItem('gg_user', JSON.stringify(currentUser));
+            location.reload();
+        } catch(e) { console.error(e); }
+    }
+
+    // --- Core Data Logic (Optimized Rendering) ---
+    function initDataListeners() {
+        // Listen Invoices
+        onValue(ref(db, 'invoices'), (snap) => {
+            const data = snap.val() || {};
+            const entries = Object.entries(data).sort((a,b) => b[1].timestamp - a[1].timestamp);
+            
+            let totals = { in: 0, out: 0, myInv: 0, myHrs: 0 };
+            let userInvs = {}, dailyInc = {}, userHrs = {};
+            let htmlMy = '', htmlAdmin = '';
+
+            entries.forEach(([id, inv]) => {
+                const hrs = Math.max(0, (new Date(`1970-01-01T${inv.offDuty}`) - new Date(`1970-01-01T${inv.onDuty}`)) / 3600000);
+                
+                totals.in += inv.nominal;
+                userInvs[inv.userName] = (userInvs[inv.userName] || 0) + inv.nominal;
+                userHrs[inv.userId] = (userHrs[inv.userId] || 0) + hrs;
+                dailyInc[inv.tanggal] = (dailyInc[inv.tanggal] || 0) + inv.nominal;
+
+                const card = `
+                    <div class="card-entry bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="flex justify-between mb-1"><h4 class="font-bold text-xs">${inv.userName}</h4><span class="font-bold text-emerald-600 text-xs">${formatIDR(inv.nominal)}</span></div>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase">${inv.tanggal} • ${inv.onDuty}-${inv.offDuty} (${hrs.toFixed(1)}j)</p>
+                        <button data-id="${id}" class="del-inv text-rose-400 text-[9px] mt-2 font-black hover:text-rose-600 transition-colors uppercase">Hapus</button>
+                    </div>`;
+
+                if(inv.userId === currentUser.id) {
+                    totals.myInv += inv.nominal;
+                    totals.myHrs += hrs;
+                    htmlMy += card;
+                }
+                htmlAdmin += card;
+            });
+
+            // Calculate Global Salaries
+            Object.values(userHrs).forEach(h => totals.out += (Math.min(h, MAX_JAM) * GAJI_PER_JAM));
+
+            // Render Leaderboard
+            const leaders = Object.entries(userInvs).filter(x => x[1] > 300000).sort((a,b) => b[1] - a[1]).slice(0, 10);
+            $('leaderboardList').innerHTML = leaders.map((l, i) => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                    <div class="flex items-center gap-3"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-500 text-white text-[10px] font-bold">${i+1}</span><span class="text-xs font-bold">${l[0]}</span></div>
+                    <span class="text-xs font-black text-emerald-600">${formatIDR(l[1])}</span>
+                </div>`).join('') || '<p class="text-center text-slate-400 py-10 text-xs">Belum ada leaderboard.</p>';
+
+            if(currentUser.role === 'admin') {
+                $('cashIn').innerText = formatIDR(totals.in);
+                $('cashOut').innerText = formatIDR(totals.out);
+                $('netProfit').innerText = formatIDR(totals.in - totals.out);
+                $('adminInvoiceList').innerHTML = htmlAdmin;
+                updateChart(dailyInc);
+            } else {
+                $('mySalary').innerText = formatIDR(Math.min(totals.myHrs, MAX_JAM) * GAJI_PER_JAM);
+                $('myTotalInv').innerText = formatIDR(totals.myInv);
+                $('myInvoiceList').innerHTML = htmlMy || '<p class="text-center text-xs py-10">Belum ada data.</p>';
+            }
+        });
+
+        // Listen Surat
+        onValue(ref(db, 'surat'), (snap) => {
+            const data = snap.val() || {};
+            let htmlAdm = '', htmlMy = '';
+            Object.entries(data).reverse().forEach(([id, s]) => {
+                const statusColor = s.status === 'ACC' ? 'bg-emerald-100 text-emerald-600' : (s.status === 'Ditolak' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600');
+                const card = `
+                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between mb-2"><div><h4 class="font-bold text-[10px]">${s.userName}</h4><p class="text-[8px] font-black text-blue-500 uppercase">${s.tipe}</p></div><span class="px-2 py-1 rounded-full text-[8px] font-black ${statusColor}">${s.status}</span></div>
+                    <p class="text-[10px] italic text-slate-500 mb-3 bg-slate-50 p-2 rounded-lg">"${s.alasan}"</p>
+                    <div class="flex gap-2">
+                        ${currentUser.role === 'admin' ? `
+                            <button data-action="ACC" data-id="${id}" class="up-surat flex-1 py-1 bg-emerald-500 text-white rounded-lg text-[9px] font-bold">ACC</button>
+                            <button data-action="Ditolak" data-id="${id}" class="up-surat flex-1 py-1 bg-rose-500 text-white rounded-lg text-[9px] font-bold">TOLAK</button>
+                        ` : ''}
+                    </div>
+                </div>`;
+                if(currentUser.role === 'admin') htmlAdm += card;
+                if(s.userId === currentUser.id) htmlMy += card;
+            });
+            $('adminSuratInbox').innerHTML = htmlAdm;
+            $('mySuratList').innerHTML = htmlMy;
+        });
+    }
+
+    function updateChart(dailyData) {
+        const ctx = $('financeChart')?.getContext('2d');
+        if(!ctx) return;
+        const labels = Object.keys(dailyData).sort();
+        const values = labels.map(l => dailyData[l]);
+        
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{ 
+                    label: 'Income', 
+                    data: values, 
+                    borderColor: '#10b981', 
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4
+                }]
+            },
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+            }
+        });
+    }
+
+    // --- Global Event Handlers (Event Delegation) ---
+    document.addEventListener('click', (e) => {
+        if(e.target.classList.contains('toggleAuth')) {
+            $('loginBox').classList.toggle('hidden');
+            $('registerBox').classList.toggle('hidden');
+        }
+        
+        if(e.target.id === 'btnLogin') login();
+        
+        if(e.target.id === 'btnLogout') { localStorage.clear(); location.reload(); }
+        
+        if(e.target.classList.contains('nav-tab')) switchTab('karyawan', e.target.dataset.tab);
+        
+        if(e.target.classList.contains('admin-nav-tab')) switchTab('admin', e.target.dataset.admintab);
+
+        if(e.target.classList.contains('del-inv')) {
+            if(confirm("Hapus data ini?")) remove(ref(db, `invoices/${e.target.dataset.id}`));
+        }
+
+        if(e.target.classList.contains('up-surat')) {
+            set(ref(db, `surat/${e.target.dataset.id}/status`), e.target.dataset.action);
+        }
+
+        if(e.target.id === 'btnKirimSurat') {
+            const alasan = $('srAlasan').value;
+            if(!alasan) return alert("Alasan wajib diisi!");
+            push(ref(db, 'surat'), {
+                userId: currentUser.id,
+                userName: currentUser.name,
+                tipe: $('srTipe').value,
+                alasan,
+                status: 'Pending',
+                timestamp: Date.now()
+            }).then(() => { alert("Terkirim!"); $('srAlasan').value = ''; });
+        }
+
+        if(e.target.id === 'masterResetBtn') {
+            const pin = prompt("PIN Admin:");
+            if(pin === "0908" && confirm("HAPUS SEMUA DATA TRANSAKSI & SURAT?")) {
+                Promise.all([remove(ref(db, 'invoices')), remove(ref(db, 'surat'))])
+                .then(() => alert("Berhasil dikosongkan!"));
+            }
+        }
+    });
+
+    $('formAbsen').onsubmit = (e) => {
+        e.preventDefault();
+        push(ref(db, 'invoices'), {
+            userId: currentUser.id,
+            userName: currentUser.name,
+            tanggal: $('tabTgl').value,
+            onDuty: $('tabOn').value,
+            offDuty: $('tabOff').value,
+            nominal: parseInt($('tabInv').value),
+            timestamp: Date.now()
+        }).then(() => {
+            alert("Berhasil!");
+            e.target.reset();
+            switchTab('karyawan', 'dashboard');
+        });
+    };
+
+    // --- Init App ---
+    if(currentUser) {
+        $('authSection').classList.add('hidden');
+        $('mainDashboard').classList.remove('hidden');
+        $('userWelcome').innerText = currentUser.name;
+        $('roleBadge').innerText = currentUser.role;
+        
+        if(currentUser.role === 'admin') {
+            $('adminPage').classList.remove('hidden');
+            $('masterResetBtn').classList.remove('hidden');
+        } else {
+            $('karyawanPage').classList.remove('hidden');
+        }
+        initDataListeners();
+    }
+</script>
+</body>
+</html>
