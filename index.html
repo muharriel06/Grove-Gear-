@@ -14,9 +14,7 @@
         .tab-active { background-color: var(--emerald-600) !important; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
         .card-entry { transition: transform 0.2s ease; }
         .card-entry:hover { transform: translateY(-2px); }
-        /* Skeleton loading sederhana */
-        .loading-shimmer { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -74,7 +72,6 @@
                         <p class="text-[10px] font-bold text-emerald-400 uppercase">Estimasi Gaji (Maks 12j)</p>
                         <h2 id="mySalary" class="text-4xl font-extrabold">Rp 0</h2>
                     </div>
-                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-3xl"></div>
                 </div>
                 <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-emerald-50">
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Total Invoice Saya</p>
@@ -85,36 +82,22 @@
 
         <div id="tab-leaderboard" class="content-tab hidden max-w-md mx-auto">
             <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100">
-                <h3 class="font-bold text-center text-slate-800 mb-6 flex items-center justify-center gap-2">
-                    <span>🏆</span> 10 Besar (>300k)
-                </h3>
+                <h3 class="font-bold text-center text-slate-800 mb-6">🏆 Leaderboard (>300k)</h3>
                 <div id="leaderboardList" class="space-y-3"></div>
             </div>
         </div>
 
         <div id="tab-input" class="content-tab hidden max-w-2xl mx-auto">
-             <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+            <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
                 <h3 class="text-xl font-extrabold mb-6">Laporan Harian</h3>
                 <form id="formAbsen" class="space-y-4">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-2">TANGGAL</label>
-                        <input type="date" id="tabTgl" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
-                    </div>
+                    <input type="date" id="tabTgl" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 ml-2">JAM MASUK</label>
-                            <input type="time" id="tabOn" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 ml-2">JAM KELUAR</label>
-                            <input type="time" id="tabOff" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
-                        </div>
+                        <input type="time" id="tabOn" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
+                        <input type="time" id="tabOff" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 ml-2">TOTAL INVOICE (RP)</label>
-                        <input type="number" id="tabInv" placeholder="Contoh: 500000" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" required>
-                    </div>
-                    <button type="submit" class="w-full py-5 emerald-gradient text-white rounded-3xl font-black shadow-lg hover:opacity-90 active:scale-[0.98] transition-all mt-4">KIRIM LAPORAN</button>
+                    <input type="number" id="tabInv" placeholder="Total Invoice (Rp)" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
+                    <button type="submit" class="w-full py-5 emerald-gradient text-white rounded-3xl font-black shadow-lg">KIRIM LAPORAN</button>
                 </form>
             </div>
         </div>
@@ -127,16 +110,16 @@
                         <option value="Izin">Izin / Cuti</option>
                         <option value="Resign">Resign</option>
                     </select>
-                    <textarea id="srAlasan" placeholder="Tulis alasan dengan detail..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-200" rows="3"></textarea>
-                    <button id="btnKirimSurat" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-colors">Kirim Pengajuan</button>
+                    <textarea id="srAlasan" placeholder="Tulis alasan..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-200" rows="3"></textarea>
+                    <button id="btnKirimSurat" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold">Kirim Pengajuan</button>
                 </div>
             </div>
             <div id="mySuratList" class="space-y-3"></div>
         </div>
 
         <div id="tab-history" class="content-tab hidden max-w-2xl mx-auto">
-            <h3 class="font-bold text-slate-800 mb-4 px-4">Riwayat Laporan Saya</h3>
-            <div id="myInvoiceList" class="grid grid-cols-1 gap-3"></div>
+            <h3 class="font-bold text-slate-800 mb-4 px-4">Riwayat Laporan</h3>
+            <div id="myInvoiceList" class="space-y-3"></div>
         </div>
     </div>
 
@@ -192,7 +175,6 @@
         appId: "1:543975396626:web:09c3e80db7b0a1ba878fcb"
     };
 
-    // --- State Management ---
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     let currentUser = JSON.parse(localStorage.getItem('gg_user'));
@@ -200,126 +182,111 @@
     const GAJI_PER_JAM = 2000;
     const MAX_JAM = 12;
 
-    // --- Helpers ---
     const $ = (id) => document.getElementById(id);
     const formatIDR = (num) => "Rp " + Math.floor(num).toLocaleString('id-ID');
 
-    // --- UI Logic ---
     function switchTab(type, targetId) {
         const tabs = document.querySelectorAll(`.${type}-nav-tab, .nav-tab`);
         const contents = document.querySelectorAll(`.${type}-content-tab, .content-tab`);
-        
         tabs.forEach(t => t.classList.remove('tab-active', 'text-slate-500'));
         contents.forEach(c => c.classList.add('hidden'));
-
         const activeTab = Array.from(tabs).find(t => (t.dataset.tab || t.dataset.admintab) === targetId);
         if(activeTab) activeTab.classList.add('tab-active');
         $(`tab-${targetId}`).classList.remove('hidden');
     }
 
-    // --- Auth Logic ---
+    // --- Auth Logic (Updated with Register) ---
     async function login() {
         const email = $('email').value.toLowerCase().trim();
         const pass = $('password').value;
-        if(!email || !pass) return alert("Isi semua bidang!");
-        
+        if(!email || !pass) return alert("Isi email dan password!");
         const uid = btoa(email).replace(/=/g, "");
         try {
             const snap = await get(ref(db, `users/${uid}`));
             if(!snap.exists()) return alert("Akun tidak ditemukan!");
-            
             const userData = snap.val();
             if(userData.password !== pass) return alert("Password salah!");
-
-            // Block Resigned
+            
+            // Cek blokir resign
             const suratSnap = await get(ref(db, 'surat'));
-            const resigns = suratSnap.val() || {};
-            const isBlocked = Object.values(resigns).some(s => s.userId === uid && s.tipe === 'Resign' && s.status === 'ACC');
-            if(isBlocked) return alert("Akses Ditolak: Akun dinonaktifkan.");
+            const isBlocked = Object.values(suratSnap.val() || {}).some(s => s.userId === uid && s.tipe === 'Resign' && s.status === 'ACC');
+            if(isBlocked) return alert("Akun dinonaktifkan (Resign).");
 
             if(email.includes('admin')) userData.role = 'admin';
-            
             currentUser = { ...userData, id: uid };
             localStorage.setItem('gg_user', JSON.stringify(currentUser));
             location.reload();
         } catch(e) { console.error(e); }
     }
 
-    // --- Core Data Logic (Optimized Rendering) ---
+    async function register() {
+        const name = $('regName').value.trim();
+        const email = $('regEmail').value.toLowerCase().trim();
+        const pass = $('regPassword').value;
+        if(!name || !email || !pass) return alert("Semua kolom harus diisi!");
+        const uid = btoa(email).replace(/=/g, "");
+        try {
+            const snap = await get(ref(db, `users/${uid}`));
+            if(snap.exists()) return alert("Email sudah terdaftar!");
+            await set(ref(db, `users/${uid}`), { name, email, password: pass, role: "karyawan" });
+            alert("Berhasil daftar! Silakan masuk.");
+            $('registerBox').classList.add('hidden');
+            $('loginBox').classList.remove('hidden');
+        } catch(e) { console.error(e); }
+    }
+
+    // --- Data Listeners ---
     function initDataListeners() {
-        // Listen Invoices
         onValue(ref(db, 'invoices'), (snap) => {
             const data = snap.val() || {};
             const entries = Object.entries(data).sort((a,b) => b[1].timestamp - a[1].timestamp);
-            
-            let totals = { in: 0, out: 0, myInv: 0, myHrs: 0 };
+            let stats = { in: 0, out: 0, myInv: 0, myHrs: 0 };
             let userInvs = {}, dailyInc = {}, userHrs = {};
             let htmlMy = '', htmlAdmin = '';
 
             entries.forEach(([id, inv]) => {
                 const hrs = Math.max(0, (new Date(`1970-01-01T${inv.offDuty}`) - new Date(`1970-01-01T${inv.onDuty}`)) / 3600000);
-                
-                totals.in += inv.nominal;
+                stats.in += inv.nominal;
                 userInvs[inv.userName] = (userInvs[inv.userName] || 0) + inv.nominal;
                 userHrs[inv.userId] = (userHrs[inv.userId] || 0) + hrs;
                 dailyInc[inv.tanggal] = (dailyInc[inv.tanggal] || 0) + inv.nominal;
 
                 const card = `
-                    <div class="card-entry bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                        <div class="flex justify-between mb-1"><h4 class="font-bold text-xs">${inv.userName}</h4><span class="font-bold text-emerald-600 text-xs">${formatIDR(inv.nominal)}</span></div>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">${inv.tanggal} • ${inv.onDuty}-${inv.offDuty} (${hrs.toFixed(1)}j)</p>
-                        <button data-id="${id}" class="del-inv text-rose-400 text-[9px] mt-2 font-black hover:text-rose-600 transition-colors uppercase">Hapus</button>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="flex justify-between font-bold text-xs"><span>${inv.userName}</span><span class="text-emerald-600">${formatIDR(inv.nominal)}</span></div>
+                        <p class="text-[9px] text-slate-400 uppercase mt-1">${inv.tanggal} • ${inv.onDuty}-${inv.offDuty}</p>
+                        ${currentUser.role === 'admin' ? `<button data-id="${id}" class="del-inv text-rose-500 text-[9px] mt-2 font-bold uppercase">Hapus</button>` : ''}
                     </div>`;
 
-                if(inv.userId === currentUser.id) {
-                    totals.myInv += inv.nominal;
-                    totals.myHrs += hrs;
-                    htmlMy += card;
-                }
+                if(inv.userId === currentUser.id) { stats.myInv += inv.nominal; stats.myHrs += hrs; htmlMy += card; }
                 htmlAdmin += card;
             });
 
-            // Calculate Global Salaries
-            Object.values(userHrs).forEach(h => totals.out += (Math.min(h, MAX_JAM) * GAJI_PER_JAM));
-
-            // Render Leaderboard
+            Object.values(userHrs).forEach(h => stats.out += (Math.min(h, MAX_JAM) * GAJI_PER_JAM));
+            
             const leaders = Object.entries(userInvs).filter(x => x[1] > 300000).sort((a,b) => b[1] - a[1]).slice(0, 10);
-            $('leaderboardList').innerHTML = leaders.map((l, i) => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
-                    <div class="flex items-center gap-3"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-500 text-white text-[10px] font-bold">${i+1}</span><span class="text-xs font-bold">${l[0]}</span></div>
-                    <span class="text-xs font-black text-emerald-600">${formatIDR(l[1])}</span>
-                </div>`).join('') || '<p class="text-center text-slate-400 py-10 text-xs">Belum ada leaderboard.</p>';
+            $('leaderboardList').innerHTML = leaders.map((l, i) => `<div class="flex justify-between p-3 bg-slate-50 rounded-2xl text-xs font-bold"><span>${i+1}. ${l[0]}</span><span class="text-emerald-600">${formatIDR(l[1])}</span></div>`).join('') || '<p class="text-center text-slate-400 py-10">Belum ada data.</p>';
 
             if(currentUser.role === 'admin') {
-                $('cashIn').innerText = formatIDR(totals.in);
-                $('cashOut').innerText = formatIDR(totals.out);
-                $('netProfit').innerText = formatIDR(totals.in - totals.out);
+                $('cashIn').innerText = formatIDR(stats.in);
+                $('cashOut').innerText = formatIDR(stats.out);
+                $('netProfit').innerText = formatIDR(stats.in - stats.out);
                 $('adminInvoiceList').innerHTML = htmlAdmin;
                 updateChart(dailyInc);
             } else {
-                $('mySalary').innerText = formatIDR(Math.min(totals.myHrs, MAX_JAM) * GAJI_PER_JAM);
-                $('myTotalInv').innerText = formatIDR(totals.myInv);
-                $('myInvoiceList').innerHTML = htmlMy || '<p class="text-center text-xs py-10">Belum ada data.</p>';
+                $('mySalary').innerText = formatIDR(Math.min(stats.myHrs, MAX_JAM) * GAJI_PER_JAM);
+                $('myTotalInv').innerText = formatIDR(stats.myInv);
+                $('myInvoiceList').innerHTML = htmlMy || '<p class="text-center py-10">Kosong.</p>';
             }
         });
 
-        // Listen Surat
         onValue(ref(db, 'surat'), (snap) => {
             const data = snap.val() || {};
             let htmlAdm = '', htmlMy = '';
             Object.entries(data).reverse().forEach(([id, s]) => {
-                const statusColor = s.status === 'ACC' ? 'bg-emerald-100 text-emerald-600' : (s.status === 'Ditolak' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600');
-                const card = `
-                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-                    <div class="flex justify-between mb-2"><div><h4 class="font-bold text-[10px]">${s.userName}</h4><p class="text-[8px] font-black text-blue-500 uppercase">${s.tipe}</p></div><span class="px-2 py-1 rounded-full text-[8px] font-black ${statusColor}">${s.status}</span></div>
-                    <p class="text-[10px] italic text-slate-500 mb-3 bg-slate-50 p-2 rounded-lg">"${s.alasan}"</p>
-                    <div class="flex gap-2">
-                        ${currentUser.role === 'admin' ? `
-                            <button data-action="ACC" data-id="${id}" class="up-surat flex-1 py-1 bg-emerald-500 text-white rounded-lg text-[9px] font-bold">ACC</button>
-                            <button data-action="Ditolak" data-id="${id}" class="up-surat flex-1 py-1 bg-rose-500 text-white rounded-lg text-[9px] font-bold">TOLAK</button>
-                        ` : ''}
-                    </div>
-                </div>`;
+                const color = s.status === 'ACC' ? 'text-emerald-600 bg-emerald-50' : (s.status === 'Ditolak' ? 'text-rose-600 bg-rose-50' : 'text-amber-600 bg-amber-50');
+                const card = `<div class="bg-white p-4 rounded-2xl border shadow-sm"><div class="flex justify-between text-[10px] font-bold"><span>${s.userName} (${s.tipe})</span><span class="px-2 py-0.5 rounded-full ${color}">${s.status}</span></div><p class="text-[10px] italic mt-2 text-slate-500">"${s.alasan}"</p>
+                    ${currentUser.role === 'admin' ? `<div class="flex gap-2 mt-3"><button data-action="ACC" data-id="${id}" class="up-surat flex-1 py-1 bg-emerald-500 text-white rounded text-[9px] font-bold">ACC</button><button data-action="Ditolak" data-id="${id}" class="up-surat flex-1 py-1 bg-rose-500 text-white rounded text-[9px] font-bold">TOLAK</button></div>` : ''}</div>`;
                 if(currentUser.role === 'admin') htmlAdm += card;
                 if(s.userId === currentUser.id) htmlMy += card;
             });
@@ -332,107 +299,44 @@
         const ctx = $('financeChart')?.getContext('2d');
         if(!ctx) return;
         const labels = Object.keys(dailyData).sort();
-        const values = labels.map(l => dailyData[l]);
-        
         if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{ 
-                    label: 'Income', 
-                    data: values, 
-                    borderColor: '#10b981', 
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4
-                }]
-            },
-            options: { 
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
-            }
-        });
+        myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Income', data: labels.map(l => dailyData[l]), borderColor: '#10b981', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
-    // --- Global Event Handlers (Event Delegation) ---
     document.addEventListener('click', (e) => {
-        if(e.target.classList.contains('toggleAuth')) {
-            $('loginBox').classList.toggle('hidden');
-            $('registerBox').classList.toggle('hidden');
-        }
-        
+        if(e.target.classList.contains('toggleAuth')) { $('loginBox').classList.toggle('hidden'); $('registerBox').classList.toggle('hidden'); }
         if(e.target.id === 'btnLogin') login();
-        
+        if(e.target.id === 'btnRegister') register();
         if(e.target.id === 'btnLogout') { localStorage.clear(); location.reload(); }
-        
         if(e.target.classList.contains('nav-tab')) switchTab('karyawan', e.target.dataset.tab);
-        
         if(e.target.classList.contains('admin-nav-tab')) switchTab('admin', e.target.dataset.admintab);
-
-        if(e.target.classList.contains('del-inv')) {
-            if(confirm("Hapus data ini?")) remove(ref(db, `invoices/${e.target.dataset.id}`));
-        }
-
-        if(e.target.classList.contains('up-surat')) {
-            set(ref(db, `surat/${e.target.dataset.id}/status`), e.target.dataset.action);
-        }
-
+        if(e.target.classList.contains('del-inv')) { if(confirm("Hapus?")) remove(ref(db, `invoices/${e.target.dataset.id}`)); }
+        if(e.target.classList.contains('up-surat')) set(ref(db, `surat/${e.target.dataset.id}/status`), e.target.dataset.action);
         if(e.target.id === 'btnKirimSurat') {
             const alasan = $('srAlasan').value;
-            if(!alasan) return alert("Alasan wajib diisi!");
-            push(ref(db, 'surat'), {
-                userId: currentUser.id,
-                userName: currentUser.name,
-                tipe: $('srTipe').value,
-                alasan,
-                status: 'Pending',
-                timestamp: Date.now()
-            }).then(() => { alert("Terkirim!"); $('srAlasan').value = ''; });
+            if(!alasan) return alert("Isi alasan!");
+            push(ref(db, 'surat'), { userId: currentUser.id, userName: currentUser.name, tipe: $('srTipe').value, alasan, status: 'Pending', timestamp: Date.now() }).then(() => { alert("Terkirim!"); $('srAlasan').value = ''; });
         }
-
         if(e.target.id === 'masterResetBtn') {
             const pin = prompt("PIN Admin:");
-            if(pin === "0908" && confirm("HAPUS SEMUA DATA TRANSAKSI & SURAT?")) {
-                Promise.all([remove(ref(db, 'invoices')), remove(ref(db, 'surat'))])
-                .then(() => alert("Berhasil dikosongkan!"));
+            if(pin === "0908" && confirm("Hapus semua data transaksi & surat?")) {
+                Promise.all([remove(ref(db, 'invoices')), remove(ref(db, 'surat'))]).then(() => alert("Dikosongkan!"));
             }
         }
     });
 
     $('formAbsen').onsubmit = (e) => {
         e.preventDefault();
-        push(ref(db, 'invoices'), {
-            userId: currentUser.id,
-            userName: currentUser.name,
-            tanggal: $('tabTgl').value,
-            onDuty: $('tabOn').value,
-            offDuty: $('tabOff').value,
-            nominal: parseInt($('tabInv').value),
-            timestamp: Date.now()
-        }).then(() => {
-            alert("Berhasil!");
-            e.target.reset();
-            switchTab('karyawan', 'dashboard');
-        });
+        push(ref(db, 'invoices'), { userId: currentUser.id, userName: currentUser.name, tanggal: $('tabTgl').value, onDuty: $('tabOn').value, offDuty: $('tabOff').value, nominal: parseInt($('tabInv').value), timestamp: Date.now() }).then(() => { alert("Berhasil!"); e.target.reset(); switchTab('karyawan', 'dashboard'); });
     };
 
-    // --- Init App ---
     if(currentUser) {
         $('authSection').classList.add('hidden');
         $('mainDashboard').classList.remove('hidden');
         $('userWelcome').innerText = currentUser.name;
         $('roleBadge').innerText = currentUser.role;
-        
-        if(currentUser.role === 'admin') {
-            $('adminPage').classList.remove('hidden');
-            $('masterResetBtn').classList.remove('hidden');
-        } else {
-            $('karyawanPage').classList.remove('hidden');
-        }
+        if(currentUser.role === 'admin') { $('adminPage').classList.remove('hidden'); $('masterResetBtn').classList.remove('hidden'); }
+        else { $('karyawanPage').classList.remove('hidden'); }
         initDataListeners();
     }
 </script>
