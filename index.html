@@ -3,342 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grove Gear</title>
+    <title>GROVEGEAR v5.5 - Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        :root { --emerald-500: #10b981; --emerald-600: #059669; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; scroll-behavior: smooth; }
-        .emerald-gradient { background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-600) 100%); }
-        .tab-active { background-color: var(--emerald-600) !important; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        .card-entry { transition: transform 0.2s ease; }
-        .card-entry:hover { transform: translateY(-2px); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="p-4 md:p-8">
+<body class="antialiased">
 
-<section id="authSection" class="min-h-[80vh] flex items-center justify-center">
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl max-w-md w-full border border-emerald-100 text-center">
-        <img src="GROVE_GEAR_LOGO.png" alt="Logo" class="w-24 h-24 mx-auto rounded-3xl mb-6 border-2 border-emerald-500 object-cover">
-        <h2 class="text-2xl font-extrabold text-emerald-900 mb-6">Grove Gear</h2>
-        
-        <div id="loginBox" class="space-y-4">
-            <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-            <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-            <button id="btnLogin" class="w-full emerald-gradient text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all">Masuk</button>
-            <p class="text-xs text-slate-500 mt-4">Belum punya akun? <span class="toggleAuth text-emerald-600 font-bold cursor-pointer">Daftar Sekarang</span></p>
-        </div>
-
-        <div id="registerBox" class="space-y-4 hidden">
-            <input type="text" id="regName" placeholder="Nama Lengkap" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-            <input type="email" id="regEmail" placeholder="Email" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-            <input type="password" id="regPassword" placeholder="Buat Password" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-            <button id="btnRegister" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all">Buat Akun</button>
-            <p class="text-xs text-slate-500 mt-4">Sudah punya akun? <span class="toggleAuth text-emerald-600 font-bold cursor-pointer">Masuk</span></p>
-        </div>
-    </div>
-</section>
-
-<main id="mainDashboard" class="max-w-7xl mx-auto hidden">
-    <header class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm mb-8 border border-slate-100 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 emerald-gradient rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-inner">GG</div>
-            <div>
-                <h1 id="userWelcome" class="text-xl font-extrabold text-emerald-900 uppercase tracking-tighter">USER</h1>
-                <p id="roleBadge" class="text-[10px] font-bold text-emerald-600 tracking-widest uppercase bg-emerald-50 px-2 py-0.5 rounded-md inline-block">ROLE</p>
-            </div>
-        </div>
-        <div class="flex gap-2">
-            <button id="masterResetBtn" class="hidden text-rose-600 font-bold text-[10px] bg-rose-50 px-4 py-2 rounded-xl border border-rose-100 hover:bg-rose-100 transition-colors">RESET SEMUA DATA</button>
-            <button id="btnLogout" class="text-slate-500 font-bold text-sm bg-slate-100 px-6 py-2 rounded-xl hover:bg-slate-200 transition-colors">Keluar</button>
-        </div>
-    </header>
-
-    <div id="karyawanPage" class="hidden">
-        <nav class="flex bg-white p-2 rounded-2xl shadow-sm mb-8 max-w-2xl mx-auto border border-slate-100 overflow-x-auto no-scrollbar">
-            <button data-tab="dashboard" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold tab-active">Dashboard</button>
-            <button data-tab="leaderboard" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Leaderboard</button>
-            <button data-tab="input" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Input</button>
-            <button data-tab="surat" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Surat</button>
-            <button data-tab="history" class="nav-tab flex-1 py-3 px-4 rounded-xl text-xs font-bold text-slate-500">Riwayat</button>
-        </nav>
-        
-        <div id="tab-dashboard" class="content-tab space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
-                    <div class="relative z-10">
-                        <p class="text-[10px] font-bold text-emerald-400 uppercase">Estimasi Gaji (Maks 12j)</p>
-                        <h2 id="mySalary" class="text-4xl font-extrabold">Rp 0</h2>
+    <div class="max-w-7xl mx-auto p-4 lg:p-8">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 p-8 glass-card rounded-[2.5rem] border border-white">
+            <div class="flex items-center gap-6">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <img src="GROVE_GEAR_LOGO.png" onerror="this.src='https://via.placeholder.com/100x100/10b981/ffffff?text=GG'" class="relative w-20 h-20 object-contain rounded-2xl bg-white p-2 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 uppercase">GROVE<span class="text-emerald-600 italic">GEAR</span></h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Attendance System Elite</p>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-emerald-50">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Invoice Saya</p>
-                    <h2 id="myTotalInv" class="text-3xl font-extrabold text-emerald-600">Rp 0</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <div id="clock" class="text-3xl font-mono font-bold bg-slate-900 text-emerald-400 px-10 py-4 rounded-3xl shadow-2xl border-b-4 border-emerald-600">00:00:00</div>
+                <button onclick="toggleAdmin(true)" class="group bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-[1.5rem] font-bold transition-all flex items-center gap-2 shadow-lg shadow-emerald-200">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-12 transition-transform"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    ADMIN PANEL
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="relative mb-6">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="searchInput" oninput="render()" placeholder="Cari nama karyawan..." class="w-full pl-14 pr-8 py-5 rounded-[2rem] border-none shadow-sm outline-none font-medium focus:ring-2 focus:ring-emerald-500">
                 </div>
+                <div id="employeeList" class="space-y-4 pb-10"></div>
             </div>
-        </div>
 
-        <div id="tab-leaderboard" class="content-tab hidden max-w-md mx-auto">
-            <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100">
-                <h3 class="font-bold text-center text-slate-800 mb-6">🏆 Leaderboard (>300k)</h3>
-                <div id="leaderboardList" class="space-y-3"></div>
-            </div>
-        </div>
-
-        <div id="tab-input" class="content-tab hidden max-w-2xl mx-auto">
-            <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
-                <h3 class="text-xl font-extrabold mb-6">Laporan Harian</h3>
-                <form id="formAbsen" class="space-y-4">
-                    <input type="date" id="tabTgl" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="time" id="tabOn" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
-                        <input type="time" id="tabOff" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
+            <div class="space-y-6">
+                <div class="bg-slate-900 rounded-[3rem] p-8 text-white shadow-2xl relative overflow-hidden">
+                    <h3 class="font-bold text-xl mb-6 text-emerald-400 flex items-center gap-2 italic">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Group Payroll
+                    </h3>
+                    <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
+                        <h2 id="totalGroupPayroll" class="text-4xl font-black text-white">Rp 0</h2>
+                        <p class="text-slate-500 text-[10px] mt-2 font-bold uppercase tracking-widest italic">Rate: Rp 1.250 / Jam</p>
                     </div>
-                    <input type="number" id="tabInv" placeholder="Total Invoice (Rp)" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none" required>
-                    <button type="submit" class="w-full py-5 emerald-gradient text-white rounded-3xl font-black shadow-lg">KIRIM LAPORAN</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="tab-surat" class="content-tab hidden max-w-2xl mx-auto space-y-6">
-            <div class="bg-white p-8 rounded-[3rem] border border-slate-100">
-                <h3 class="font-bold text-slate-800 mb-6">Pengajuan Izin / Resign</h3>
-                <div class="space-y-4">
-                    <select id="srTipe" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none">
-                        <option value="Izin">Izin / Cuti</option>
-                        <option value="Resign">Resign</option>
-                    </select>
-                    <textarea id="srAlasan" placeholder="Tulis alasan..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-200" rows="3"></textarea>
-                    <button id="btnKirimSurat" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold">Kirim Pengajuan</button>
+                </div>
+                <div class="glass-card rounded-[2.5rem] p-8">
+                    <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest mb-6 border-b pb-4">Struktur Tim</h3>
+                    <div id="statsContainer" class="space-y-4"></div>
                 </div>
             </div>
-            <div id="mySuratList" class="space-y-3"></div>
-        </div>
-
-        <div id="tab-history" class="content-tab hidden max-w-2xl mx-auto">
-            <h3 class="font-bold text-slate-800 mb-4 px-4">Riwayat Laporan</h3>
-            <div id="myInvoiceList" class="space-y-3"></div>
         </div>
     </div>
 
-    <div id="adminPage" class="hidden space-y-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div class="bg-white p-6 rounded-[2rem] border-b-4 border-emerald-500 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Pemasukan</p>
-                <h2 id="cashIn" class="text-2xl font-bold text-emerald-600">Rp 0</h2>
+    <div id="adminModal" class="modal">
+        <div class="bg-white rounded-[2.5rem] max-w-4xl w-full mx-4 shadow-2xl overflow-hidden flex flex-col" style="height: 85vh;">
+            <div class="p-8 border-b flex justify-between items-center bg-slate-50">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900">Admin Panel</h2>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Kelola Daftar & Data Karyawan</p>
+                </div>
+                <button onclick="toggleAdmin(false)" class="bg-white p-3 rounded-full shadow-sm hover:bg-red-50 hover:text-red-500 transition-all">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] border-b-4 border-rose-500 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Gaji (Maks 12j)</p>
-                <h2 id="cashOut" class="text-2xl font-bold text-rose-600">Rp 0</h2>
+
+            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <section class="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="bg-emerald-500 p-1.5 rounded-lg text-white">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </div>
+                        <p id="formLabel" class="font-black text-emerald-700 text-xs uppercase tracking-widest">Tambah / Edit Data</p>
+                    </div>
+                    <input type="hidden" id="editId">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <input type="text" id="empName" placeholder="Nama" class="p-4 rounded-xl border-none ring-1 ring-emerald-200 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                        <select id="empJabatan" class="p-4 rounded-xl border-none ring-1 ring-emerald-200 outline-none focus:ring-2 focus:ring-emerald-500 bg-white font-bold text-sm">
+                            <option>Manager</option><option>Novice</option><option>Recruit</option><option>Expert Motier</option>
+                        </select>
+                        <input type="text" id="empPin" placeholder="PIN" class="p-4 rounded-xl border-none ring-1 ring-emerald-200 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                        <button onclick="saveEmployee()" id="btnSave" class="bg-emerald-600 text-white font-black rounded-xl py-4 hover:bg-emerald-700 shadow-md transition-all text-sm uppercase">Simpan</button>
+                    </div>
+                    <button onclick="resetForm()" id="btnCancel" class="hidden mt-3 text-[10px] font-black text-red-500 hover:underline uppercase tracking-tighter">Batal Edit</button>
+                </section>
+
+                <section>
+                    <p class="font-black text-slate-400 text-[10px] uppercase tracking-[0.2em] mb-4">Daftar Karyawan Aktif</p>
+                    <div id="adminManageList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </section>
             </div>
-            <div class="emerald-gradient p-6 rounded-[2rem] text-white shadow-lg">
-                <p class="text-[10px] font-bold opacity-80 uppercase">Net Profit</p>
-                <h2 id="netProfit" class="text-2xl font-bold">Rp 0</h2>
+
+            <div class="p-6 bg-slate-900 flex justify-between items-center">
+                <div class="flex gap-3">
+                    <button onclick="exportToWord()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-blue-700">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        EXPORT WORD
+                    </button>
+                    <button onclick="resetAllWeekly()" class="bg-slate-800 text-red-400 px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-red-900 hover:text-white transition-all">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        RESET JAM
+                    </button>
+                </div>
             </div>
-        </div>
-
-        <nav class="flex bg-white p-2 rounded-2xl shadow-sm max-w-md mx-auto border border-slate-100">
-            <button data-admintab="admin-grafik" class="admin-nav-tab flex-1 py-2 rounded-xl text-xs font-bold tab-active">Grafik</button>
-            <button data-admintab="admin-transaksi" class="admin-nav-tab flex-1 py-2 rounded-xl text-xs font-bold text-slate-500">Transaksi</button>
-            <button data-admintab="admin-surat" class="admin-nav-tab flex-1 py-2 rounded-xl text-xs font-bold text-slate-500">Surat</button>
-        </nav>
-
-        <div id="tab-admin-grafik" class="admin-content-tab">
-            <div class="bg-white p-6 rounded-[2.5rem] border border-slate-50 shadow-inner">
-                <canvas id="financeChart" height="120"></canvas>
-            </div>
-        </div>
-
-        <div id="tab-admin-transaksi" class="admin-content-tab hidden">
-            <div id="adminInvoiceList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </div>
-
-        <div id="tab-admin-surat" class="admin-content-tab hidden">
-            <div id="adminSuratInbox" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
     </div>
-</main>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDZmwR3HkZon33osEzcCeMlBgyeWnTQJcY",
-        authDomain: "grove-gear-finance.firebaseapp.com",
-        databaseURL: "https://grove-gear-finance-default-rtdb.asia-southeast1.firebasedatabase.app/",
-        projectId: "grove-gear-finance",
-        storageBucket: "grove-gear-finance.firebasestorage.app",
-        messagingSenderId: "543975396626",
-        appId: "1:543975396626:web:09c3e80db7b0a1ba878fcb"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let currentUser = JSON.parse(localStorage.getItem('gg_user'));
-    let myChart = null;
-    const GAJI_PER_JAM = 2000;
-    const MAX_JAM = 12;
-
-    const $ = (id) => document.getElementById(id);
-    const formatIDR = (num) => "Rp " + Math.floor(num).toLocaleString('id-ID');
-
-    function switchTab(type, targetId) {
-        const tabs = document.querySelectorAll(`.${type}-nav-tab, .nav-tab`);
-        const contents = document.querySelectorAll(`.${type}-content-tab, .content-tab`);
-        tabs.forEach(t => t.classList.remove('tab-active', 'text-slate-500'));
-        contents.forEach(c => c.classList.add('hidden'));
-        const activeTab = Array.from(tabs).find(t => (t.dataset.tab || t.dataset.admintab) === targetId);
-        if(activeTab) activeTab.classList.add('tab-active');
-        $(`tab-${targetId}`).classList.remove('hidden');
-    }
-
-    // --- Auth Logic (Updated with Register) ---
-    async function login() {
-        const email = $('email').value.toLowerCase().trim();
-        const pass = $('password').value;
-        if(!email || !pass) return alert("Isi email dan password!");
-        const uid = btoa(email).replace(/=/g, "");
-        try {
-            const snap = await get(ref(db, `users/${uid}`));
-            if(!snap.exists()) return alert("Akun tidak ditemukan!");
-            const userData = snap.val();
-            if(userData.password !== pass) return alert("Password salah!");
-            
-            // Cek blokir resign
-            const suratSnap = await get(ref(db, 'surat'));
-            const isBlocked = Object.values(suratSnap.val() || {}).some(s => s.userId === uid && s.tipe === 'Resign' && s.status === 'ACC');
-            if(isBlocked) return alert("Akun dinonaktifkan (Resign).");
-
-            if(email.includes('admin')) userData.role = 'admin';
-            currentUser = { ...userData, id: uid };
-            localStorage.setItem('gg_user', JSON.stringify(currentUser));
-            location.reload();
-        } catch(e) { console.error(e); }
-    }
-
-    async function register() {
-        const name = $('regName').value.trim();
-        const email = $('regEmail').value.toLowerCase().trim();
-        const pass = $('regPassword').value;
-        if(!name || !email || !pass) return alert("Semua kolom harus diisi!");
-        const uid = btoa(email).replace(/=/g, "");
-        try {
-            const snap = await get(ref(db, `users/${uid}`));
-            if(snap.exists()) return alert("Email sudah terdaftar!");
-            await set(ref(db, `users/${uid}`), { name, email, password: pass, role: "karyawan" });
-            alert("Berhasil daftar! Silakan masuk.");
-            $('registerBox').classList.add('hidden');
-            $('loginBox').classList.remove('hidden');
-        } catch(e) { console.error(e); }
-    }
-
-    // --- Data Listeners ---
-    function initDataListeners() {
-        onValue(ref(db, 'invoices'), (snap) => {
-            const data = snap.val() || {};
-            const entries = Object.entries(data).sort((a,b) => b[1].timestamp - a[1].timestamp);
-            let stats = { in: 0, out: 0, myInv: 0, myHrs: 0 };
-            let userInvs = {}, dailyInc = {}, userHrs = {};
-            let htmlMy = '', htmlAdmin = '';
-
-            entries.forEach(([id, inv]) => {
-                const hrs = Math.max(0, (new Date(`1970-01-01T${inv.offDuty}`) - new Date(`1970-01-01T${inv.onDuty}`)) / 3600000);
-                stats.in += inv.nominal;
-                userInvs[inv.userName] = (userInvs[inv.userName] || 0) + inv.nominal;
-                userHrs[inv.userId] = (userHrs[inv.userId] || 0) + hrs;
-                dailyInc[inv.tanggal] = (dailyInc[inv.tanggal] || 0) + inv.nominal;
-
-                const card = `
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                        <div class="flex justify-between font-bold text-xs"><span>${inv.userName}</span><span class="text-emerald-600">${formatIDR(inv.nominal)}</span></div>
-                        <p class="text-[9px] text-slate-400 uppercase mt-1">${inv.tanggal} • ${inv.onDuty}-${inv.offDuty}</p>
-                        ${currentUser.role === 'admin' ? `<button data-id="${id}" class="del-inv text-rose-500 text-[9px] mt-2 font-bold uppercase">Hapus</button>` : ''}
-                    </div>`;
-
-                if(inv.userId === currentUser.id) { stats.myInv += inv.nominal; stats.myHrs += hrs; htmlMy += card; }
-                htmlAdmin += card;
-            });
-
-            Object.values(userHrs).forEach(h => stats.out += (Math.min(h, MAX_JAM) * GAJI_PER_JAM));
-            
-            const leaders = Object.entries(userInvs).filter(x => x[1] > 300000).sort((a,b) => b[1] - a[1]).slice(0, 10);
-            $('leaderboardList').innerHTML = leaders.map((l, i) => `<div class="flex justify-between p-3 bg-slate-50 rounded-2xl text-xs font-bold"><span>${i+1}. ${l[0]}</span><span class="text-emerald-600">${formatIDR(l[1])}</span></div>`).join('') || '<p class="text-center text-slate-400 py-10">Belum ada data.</p>';
-
-            if(currentUser.role === 'admin') {
-                $('cashIn').innerText = formatIDR(stats.in);
-                $('cashOut').innerText = formatIDR(stats.out);
-                $('netProfit').innerText = formatIDR(stats.in - stats.out);
-                $('adminInvoiceList').innerHTML = htmlAdmin;
-                updateChart(dailyInc);
-            } else {
-                $('mySalary').innerText = formatIDR(Math.min(stats.myHrs, MAX_JAM) * GAJI_PER_JAM);
-                $('myTotalInv').innerText = formatIDR(stats.myInv);
-                $('myInvoiceList').innerHTML = htmlMy || '<p class="text-center py-10">Kosong.</p>';
-            }
-        });
-
-        onValue(ref(db, 'surat'), (snap) => {
-            const data = snap.val() || {};
-            let htmlAdm = '', htmlMy = '';
-            Object.entries(data).reverse().forEach(([id, s]) => {
-                const color = s.status === 'ACC' ? 'text-emerald-600 bg-emerald-50' : (s.status === 'Ditolak' ? 'text-rose-600 bg-rose-50' : 'text-amber-600 bg-amber-50');
-                const card = `<div class="bg-white p-4 rounded-2xl border shadow-sm"><div class="flex justify-between text-[10px] font-bold"><span>${s.userName} (${s.tipe})</span><span class="px-2 py-0.5 rounded-full ${color}">${s.status}</span></div><p class="text-[10px] italic mt-2 text-slate-500">"${s.alasan}"</p>
-                    ${currentUser.role === 'admin' ? `<div class="flex gap-2 mt-3"><button data-action="ACC" data-id="${id}" class="up-surat flex-1 py-1 bg-emerald-500 text-white rounded text-[9px] font-bold">ACC</button><button data-action="Ditolak" data-id="${id}" class="up-surat flex-1 py-1 bg-rose-500 text-white rounded text-[9px] font-bold">TOLAK</button></div>` : ''}</div>`;
-                if(currentUser.role === 'admin') htmlAdm += card;
-                if(s.userId === currentUser.id) htmlMy += card;
-            });
-            $('adminSuratInbox').innerHTML = htmlAdm;
-            $('mySuratList').innerHTML = htmlMy;
-        });
-    }
-
-    function updateChart(dailyData) {
-        const ctx = $('financeChart')?.getContext('2d');
-        if(!ctx) return;
-        const labels = Object.keys(dailyData).sort();
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Income', data: labels.map(l => dailyData[l]), borderColor: '#10b981', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-    }
-
-    document.addEventListener('click', (e) => {
-        if(e.target.classList.contains('toggleAuth')) { $('loginBox').classList.toggle('hidden'); $('registerBox').classList.toggle('hidden'); }
-        if(e.target.id === 'btnLogin') login();
-        if(e.target.id === 'btnRegister') register();
-        if(e.target.id === 'btnLogout') { localStorage.clear(); location.reload(); }
-        if(e.target.classList.contains('nav-tab')) switchTab('karyawan', e.target.dataset.tab);
-        if(e.target.classList.contains('admin-nav-tab')) switchTab('admin', e.target.dataset.admintab);
-        if(e.target.classList.contains('del-inv')) { if(confirm("Hapus?")) remove(ref(db, `invoices/${e.target.dataset.id}`)); }
-        if(e.target.classList.contains('up-surat')) set(ref(db, `surat/${e.target.dataset.id}/status`), e.target.dataset.action);
-        if(e.target.id === 'btnKirimSurat') {
-            const alasan = $('srAlasan').value;
-            if(!alasan) return alert("Isi alasan!");
-            push(ref(db, 'surat'), { userId: currentUser.id, userName: currentUser.name, tipe: $('srTipe').value, alasan, status: 'Pending', timestamp: Date.now() }).then(() => { alert("Terkirim!"); $('srAlasan').value = ''; });
-        }
-        if(e.target.id === 'masterResetBtn') {
-            const pin = prompt("PIN Admin:");
-            if(pin === "0908" && confirm("Hapus semua data transaksi & surat?")) {
-                Promise.all([remove(ref(db, 'invoices')), remove(ref(db, 'surat'))]).then(() => alert("Dikosongkan!"));
-            }
-        }
-    });
-
-    $('formAbsen').onsubmit = (e) => {
-        e.preventDefault();
-        push(ref(db, 'invoices'), { userId: currentUser.id, userName: currentUser.name, tanggal: $('tabTgl').value, onDuty: $('tabOn').value, offDuty: $('tabOff').value, nominal: parseInt($('tabInv').value), timestamp: Date.now() }).then(() => { alert("Berhasil!"); e.target.reset(); switchTab('karyawan', 'dashboard'); });
-    };
-
-    if(currentUser) {
-        $('authSection').classList.add('hidden');
-        $('mainDashboard').classList.remove('hidden');
-        $('userWelcome').innerText = currentUser.name;
-        $('roleBadge').innerText = currentUser.role;
-        if(currentUser.role === 'admin') { $('adminPage').classList.remove('hidden'); $('masterResetBtn').classList.remove('hidden'); }
-        else { $('karyawanPage').classList.remove('hidden'); }
-        initDataListeners();
-    }
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
