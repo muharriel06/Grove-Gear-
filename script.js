@@ -1,6 +1,19 @@
+// CONFIGURATION FIREBASE
+const firebaseConfig = {
+    databaseURL: "https://grove-gear-8452f-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+
 const PIN_ADMIN = "0000";
 let isAdminMode = false;
+let employees = [];
 
+// KONFIGURASI PAYROLL DIAMBIL DARI KODINGAN LAMA
 const PAYROLL_CONFIG = {
     "Manager": { rate: 2083.33, limit: 50000, items: "Tanpa Bonus" },
     "Expert Motier": { rate: 1250, limit: 30000, items: "10 Harness + 2 Kit" },
@@ -8,19 +21,27 @@ const PAYROLL_CONFIG = {
     "Recruit": { rate: 0, limit: 0, items: "5 Harness + 2 Kit" }
 };
 
-let employees = JSON.parse(localStorage.getItem('gg_db_v10')) || [];
-
 const fmt = (v) => "Rp " + Math.floor(v).toLocaleString('id-ID');
 
+// MENDENGARKAN PERUBAHAN DATA SECARA REALTIME
+db.ref('employees').on('value', (snapshot) => {
+    const data = snapshot.val();
+    // Konversi objek database menjadi array
+    employees = data ? Object.keys(data).map(key => ({...data[key], fbKey: key})) : [];
+    render();
+});
+
 function render() {
-    const list = document.getElementById('employeeList'), q = document.getElementById('searchInput').value.toLowerCase();
+    const list = document.getElementById('employeeList'), 
+          q = document.getElementById('searchInput').value.toLowerCase();
     let totalPayroll = 0, counts = {};
     list.innerHTML = "";
 
     employees.filter(e => e.nama.toLowerCase().includes(q)).forEach(e => {
         const conf = PAYROLL_CONFIG[e.jabatan] || { rate: 0, limit: 0, items: "-" };
-        let jam = e.dtk / 3600;
+        let jam = (e.dtk || 0) / 3600;
         let gaji = Math.min(jam * conf.rate, conf.limit);
+        
         totalPayroll += gaji;
         counts[e.jabatan] = (counts[e.jabatan] || 0) + 1;
         const isMaxed = jam >= 24;
@@ -58,7 +79,6 @@ function render() {
             <span class="text-emerald-600">${v}</span>
         </div>`).join('');
     
-    localStorage.setItem('gg_db_v10', JSON.stringify(employees));
     if(isAdminMode) renderAdminManagement();
 }
 
@@ -66,25 +86,51 @@ function handleDuty(id) {
     let e = employees.find(x => x.id === id);
     let p = prompt(`PIN ${e.nama}:`);
     if (p !== e.pin) return p === null ? null : alert("PIN SALAH!");
-    if (e.st === "OFF") { e.st = "ON"; e.tgl = Date.now(); } 
-    else { e.dtk += Math.floor((Date.now() - e.tgl)/1000); e.st = "OFF"; }
-    render();
+    
+    let updates = {};
+    if (e.st === "OFF") {
+        updates = { st: "ON", tgl: Date.now() };
+    } else {
+        let newDtk = (e.dtk || 0) + Math.floor((Date.now() - e.tgl)/1000);
+        updates = { dtk: newDtk, st: "OFF" };
+    }
+    // Update langsung ke Firebase
+    db.ref('employees/' + id).update(updates);
 }
 
 function toggleAdmin(s) {
     if(s && prompt("PASSWORD:") !== PIN_ADMIN) return;
     isAdminMode = s;
     document.getElementById('adminModal').style.display = s ? 'flex' : 'none';
-    render();
+    if(s) renderAdminManagement();
 }
 
 function saveEmployee() {
-    const id = document.getElementById('editId').value, n = document.getElementById('empName').value, j = document.getElementById('empJabatan').value, p = document.getElementById('empPin').value;
+    const editId = document.getElementById('editId').value;
+    const id = editId || Date.now();
+    const n = document.getElementById('empName').value;
+    const j = document.getElementById('empJabatan').value;
+    const p = document.getElementById('empPin').value;
+    
     if(!n || !p) return;
-    if(id) Object.assign(employees.find(e => e.id == id), {nama:n, jabatan:j, pin:p});
-    else employees.push({id:Date.now(), nama:n, jabatan:j, pin:p, dtk:0, st:"OFF", tgl:0});
-    document.getElementById('editId').value = ""; document.getElementById('empName').value = ""; document.getElementById('empPin').value = "";
-    render();
+
+    const existing = employees.find(e => e.id == id);
+    const empData = {
+        id: parseInt(id),
+        nama: n,
+        jabatan: j,
+        pin: p,
+        dtk: existing ? (existing.dtk || 0) : 0,
+        st: existing ? (existing.st || "OFF") : "OFF",
+        tgl: existing ? (existing.tgl || 0) : 0
+    };
+
+    db.ref('employees/' + id).set(empData);
+    
+    // Reset Form
+    document.getElementById('editId').value = ""; 
+    document.getElementById('empName').value = ""; 
+    document.getElementById('empPin').value = "";
 }
 
 function renderAdminManagement() {
@@ -107,14 +153,33 @@ function fillEdit(id) {
     document.getElementById('empPin').value = e.pin;
 }
 
-function del(id) { if(confirm("Hapus?")) { employees = employees.filter(x => x.id !== id); render(); } }
-function resetAllWeekly() { if(confirm("Reset jam?")) { employees.forEach(e => {e.dtk=0; e.st="OFF"}); render(); } }
-function exportToWord() { 
-    let t = `<h2>REPORT</h2><table border="1">`;
-    employees.forEach(e => t += `<tr><td>${e.nama}</td><td>${(e.dtk/3600).toFixed(1)}j</td></tr>`);
-    const blob = new Blob([t], {type:'application/msword'});
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'Report.doc'; link.click();
+function del(id) { 
+    if(confirm("Hapus karyawan ini secara permanen?")) { 
+        db.ref('employees/' + id).remove(); 
+    } 
 }
 
-setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID'); }, 1000);
-render();
+function resetAllWeekly() { 
+    if(confirm("Reset semua jam kerja karyawan ke 0?")) { 
+        employees.forEach(e => {
+            db.ref('employees/' + e.id).update({dtk: 0, st: "OFF", tgl: 0});
+        });
+    } 
+}
+
+function exportToWord() { 
+    let t = `<h2>GROVE GEAR - ATTENDANCE REPORT</h2><table border="1"><tr><th>Nama</th><th>Jabatan</th><th>Total Jam</th></tr>`;
+    employees.forEach(e => t += `<tr><td>${e.nama}</td><td>${e.jabatan}</td><td>${((e.dtk||0)/3600).toFixed(1)}j</td></tr>`);
+    t += `</table>`;
+    const blob = new Blob(['\ufeff', t], {type:'application/msword'});
+    const link = document.createElement('a'); 
+    link.href = URL.createObjectURL(blob); 
+    link.download = 'Report_GroveGear.doc'; 
+    link.click();
+}
+
+// Update jam setiap detik
+setInterval(() => { 
+    const clockEl = document.getElementById('clock');
+    if(clockEl) clockEl.innerText = new Date().toLocaleTimeString('id-ID'); 
+}, 1000);
