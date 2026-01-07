@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GROVEGEAR</title>
+    <title>GROVEGEAR v6.1 - Realtime Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="antialiased bg-[#f8fafc]">
@@ -13,7 +15,7 @@
         <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 p-8 glass-card rounded-[2.5rem] border border-white">
             <div class="flex items-center gap-6">
                 <div class="relative">
-                    <img src="GROVE_GEAR_LOGO.png" alt="Logo" class="w-20 h-20 object-contain rounded-2xl bg-white p-1 shadow-sm">
+                    <img src="GROVE_GEAR_LOGO.jpg" alt="Logo" class="w-20 h-20 object-contain rounded-2xl bg-white p-1 shadow-sm">
                 </div>
                 <div class="flex flex-col">
                     <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 uppercase">GROVE<span class="text-emerald-600 italic">GEAR</span></h1>
@@ -53,7 +55,7 @@
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
                 <div class="bg-slate-50 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-4 gap-3">
                     <input type="hidden" id="editId">
-                    <input type="text" id="empName" placeholder="Nama" class="p-3 rounded-lg border text-sm">
+                    <input type="text" id="empName" placeholder="Nama Karyawan" class="p-3 rounded-lg border text-sm">
                     <select id="empJabatan" class="p-3 rounded-lg border text-sm font-bold">
                         <option>Manager</option>
                         <option>Expert Motier</option>
@@ -66,13 +68,12 @@
                 <div id="adminManageList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
             <div class="p-4 bg-slate-900 flex gap-2">
-                <button onclick="exportToWord()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">EXPORT</button>
-                <button onclick="resetAllWeekly()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold">RESET SEMUA</button>
+                <button onclick="exportToWord()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">EXPORT REPORT</button>
+                <button onclick="resetAllWeekly()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold">RESET SEMUA JAM</button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-
 </html>
