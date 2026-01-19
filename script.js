@@ -168,13 +168,49 @@ function resetAllWeekly() {
 }
 
 function exportToWord() { 
-    let t = `<h2>GROVE GEAR - ATTENDANCE REPORT</h2><table border="1"><tr><th>Nama</th><th>Jabatan</th><th>Total Jam</th></tr>`;
-    employees.forEach(e => t += `<tr><td>${e.nama}</td><td>${e.jabatan}</td><td>${((e.dtk||0)/3600).toFixed(1)}j</td></tr>`);
-    t += `</table>`;
+    // Header tabel ditambahkan kolom Gaji
+    let t = `
+    <h2 style="text-align:center;">GROVE GEAR - ATTENDANCE REPORT</h2>
+    <p style="text-align:center;">Generated: ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}</p>
+    <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 8px;">Nama</th>
+            <th style="padding: 8px;">Jabatan</th>
+            <th style="padding: 8px;">Total Jam</th>
+            <th style="padding: 8px;">Estimasi Gaji</th>
+        </tr>`;
+
+    let grandTotal = 0;
+
+    employees.forEach(e => {
+        // Logika perhitungan gaji sesuai PAYROLL_CONFIG
+        const conf = PAYROLL_CONFIG[e.jabatan] || { rate: 0, limit: 0 };
+        let jam = (e.dtk || 0) / 3600;
+        let gaji = Math.min(jam * conf.rate, conf.limit);
+        
+        grandTotal += gaji;
+
+        t += `
+        <tr>
+            <td style="padding: 8px;">${e.nama}</td>
+            <td style="padding: 8px;">${e.jabatan}</td>
+            <td style="padding: 8px;">${jam.toFixed(1)}j</td>
+            <td style="padding: 8px;">${fmt(gaji)}</td>
+        </tr>`;
+    });
+
+    // Menambahkan baris Total Keseluruhan di akhir tabel
+    t += `
+        <tr style="font-weight: bold; background-color: #e2e8f0;">
+            <td colspan="3" style="padding: 8px; text-align: right;">TOTAL PAYROLL:</td>
+            <td style="padding: 8px;">${fmt(grandTotal)}</td>
+        </tr>
+    </table>`;
+
     const blob = new Blob(['\ufeff', t], {type:'application/msword'});
     const link = document.createElement('a'); 
     link.href = URL.createObjectURL(blob); 
-    link.download = 'Report_GroveGear.doc'; 
+    link.download = `Report_GroveGear_${new Date().toISOString().split('T')[0]}.doc`; 
     link.click();
 }
 
